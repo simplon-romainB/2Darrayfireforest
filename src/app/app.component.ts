@@ -8,39 +8,44 @@ import { ParamsService } from './params.service';
 })
 export class AppComponent implements OnInit {
   @ViewChild('canvas', { static: true }) canvas: ElementRef<HTMLCanvasElement>;
-  public mainWidth: string = '1000px';
-  public mainHeight: string = '1000px'
+  public mainWidth: string = '1010px';
+  public mainHeight: string = '1010px'
   private ctx: CanvasRenderingContext2D | any;
-  public cases: number[] = []; //tableau formé par le canva afin d'appliquer les regles de la fire forest
-  public precases: number[] = []; //pré-tableau qui une fois les règles appliquées remplacera le tableau cases
+  public preCases: number[][] = []
+  public cases: number[][] = []; //tableau formé par le canva afin d'appliquer les regles de la fire forest
   public sizeOptions: number[] =[50, 100, 200]
   public starters: number[] = [1,2,3]
   public expansions: number[] = [25,50,60,70,80,90,100]
   constructor(public paramservice: ParamsService){
   }
   ngOnInit(): void {
-    this.initCases(this.paramservice.size,this.paramservice.starters, this.paramservice.expansion);
+    this.initCases(this.paramservice.starters, this.paramservice.expansion);
     
     
     
   }
-  initGrid(size: number) { //initialisation de la grille en suivant le tableau cases
-    var width = this.canvas.nativeElement.offsetWidth
+  initGrid() { //initialisation de la grille en suivant le tableau cases
+    var width = this.canvas.nativeElement.width
     var count = 0
-    for (var i = (width/size); i < (width-(width/size)); i+= (width/size)){
-      for (var j = (width/size); j < (width-(width/size)); j+= (width/size)) {
+    var size = 100
+    for (var i = 10; i <= 1000; i+= 10){
+      for (var j = 10; j <= 1000; j+= 10) {
         
-        if (this.cases[count] === 0) {
+        if (this.cases[count][2] === 0) {
           this.ctx.fillStyle =  "green"
           this.ctx.strokestyle = "green"
         }
-        else if (this.cases[count] === 1) {
+        else if (this.cases[count][2] === 1) {
           this.ctx.fillStyle =  "red"
           this.ctx.strokestyle = "red"
         }
-        else if (this.cases[count] === 2) {
+        else if (this.cases[count][2] === 2) {
           this.ctx.fillStyle =  "grey"
           this.ctx.strokestyle = "grey"
+        }
+        else if (this.cases[count][2] === 3) {
+          this.ctx.fillStyle =  "black"
+          this.ctx.strokestyle = "black"
         }
         this.ctx.strokeRect((j-(width/size)),i,(width/size),(width/size));
 
@@ -49,55 +54,83 @@ export class AppComponent implements OnInit {
       }
     }
     
+    
   }
-  initCases(size: number, starters : number, expansion: number) {
+  initCases(starters : number, expansion: number) {
     this.cases = []
+    var size = 100
     this.ctx = this.canvas.nativeElement.getContext('2d');
-    this.canvas.nativeElement.width = 1000; 
-    this.canvas.nativeElement.height = 1000;
+    this.canvas.nativeElement.width = 1100; 
+    this.canvas.nativeElement.height = 1100;
     for (var i = 0; i < size; i++) {
       for (var j = 0; j < size; j++) {
-        this.cases.push(0)
-      }
-    }
-    for (var i = 0; i < starters ; i ++) {
-        var random = Math.floor(Math.random() * this.cases.length) 
-        if (this.cases[random] === 1) {
-          i = i - 1
-        }
-        else {
-          this.cases[random] = 1
-          
-        }
-      }
-      this.initGrid(this.paramservice.size);
-  }
-  preRender(size: number, starters: number, expansion: number) {
-    var length = this.cases.length
-    for (var i = 0; i <= length; i ++) {
-      if (this.cases[i] === 1) {
-        this.precases.push(2) 
-      }
-      else if (((this.cases[i-size+2] === 1) && (this.cases[i] === 0)&&  ((Math.random()*100)<= expansion))||
-      ((this.cases[i+size-2] === 1) && (this.cases[i] === 0)&& ((Math.random()*100)<= expansion))||
-      ((this.cases[i+1] === 1) && (this.cases[i] === 0)&&  ((Math.random()*100)<= expansion))||
-      ((this.cases[i-1] === 1) && (this.cases[i] === 0)&&  ((Math.random()*100)<= expansion))) {
-        this.precases.push(1) 
-      }
-      else if(this.cases[i] === 0) {
-        this.precases.push(0)
-      }
-      else if(this.cases[i] === 2) {
-        this.precases.push(2)
+        this.cases.push([i,j,0])
       }
     }
     
-    this.cases = this.precases
-    this.precases = []
+    for (var i = 0; i < starters ; i ++) {
+        var randomHorizontal = Math.floor(Math.random() * size) 
+        var randomVertical = Math.floor(Math.random() * size)
+        if (this.cases.includes([randomVertical, randomHorizontal, 1]) ){
+          i = i - 1
+        }
+        else {
+          var location = this.cases.findIndex(item => {
+            return item[0] === randomHorizontal && item[1] === randomVertical && item[2] === 0;
+          });
+          this.cases[location] = [randomHorizontal, randomVertical, 1]
+          
+        }
+      }
+      this.initGrid();
   }
-  next(size: number, starters: number, expansion: number,) {
-    this.preRender(size, starters, expansion);
-    this.initGrid(size);
+  preRender( starters: number, expansion: number) {
+    var length = this.cases.length;
+    
+    var size = 100
+    for (var i = 0; i < length; i++) {
+      if (this.cases[i][2] === 1) {
+        this.preCases.push(this.cases[i].slice());
+        this.preCases[this.preCases.length - 1][2] = 2;
+      } else if (this.cases[i][2] === 2) {
+        this.preCases.push(this.cases[i].slice())
+        this.preCases[this.preCases.length - 1][2] = 2;
+      } else {
+        if (i + (size + 2) < length && this.cases[i + size][2] === 1 && Math.random() * 100 < expansion) {
+            this.preCases.push(this.cases[i].slice());
+            this.preCases[this.preCases.length - 1][2] = 1;
+        } else if (i - size - 2 >= 0 && this.cases[i - size][2] === 1 && Math.random() * 100 < expansion) {
+            this.preCases.push(this.cases[i].slice());
+            this.preCases[this.preCases.length - 1][2] = 1;
+        } else if (i + 1 < length && this.cases[i + 1][2] === 1  && this.cases[i][1] === size-1 ) {
+            this.preCases.push(this.cases[i].slice());
+            this.preCases[this.preCases.length - 1][2] = 3;
+            console.log(this.cases[i][1])
+        } else if (i - 1 >= 0 && this.cases[i - 1][2] === 1 &&  this.cases[i][1] === 0) {
+            this.preCases.push(this.cases[i].slice());
+            this.preCases[this.preCases.length - 1][2] = 3;
+            console.log(this.cases[i][1])
+        } else if (i + 1 < length && this.cases[i + 1][2] === 1 && Math.random() * 100 < expansion) {
+            this.preCases.push(this.cases[i].slice());
+            this.preCases[this.preCases.length - 1][2] = 1;
+        } else if (i - 1 >= 0 && this.cases[i - 1][2] === 1 && Math.random() * 100 < expansion) {
+            this.preCases.push(this.cases[i].slice());
+            this.preCases[this.preCases.length - 1][2] = 1;
+        }
+        else {
+          this.preCases.push(this.cases[i].slice());
+          this.preCases[this.preCases.length - 1][2] = 0;
+        }
+      }
+    }
+    this.cases = this.preCases.slice()
+    this.preCases = []
+    
+    
+  }
+  next (starters: number, expansion: number,) {
+    this.preRender( starters, expansion);
+    this.initGrid();
    
   }
 }

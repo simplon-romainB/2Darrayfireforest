@@ -9,9 +9,6 @@ export class ParamsService {
   public size: number = 100;
   constructor() { }
  
-  setSize(size: number) {
-    this.size = size
-  }
 
   setStarters(starter: number) {
     this.starters = starter
