@@ -43,10 +43,6 @@ export class AppComponent implements OnInit {
           this.ctx.fillStyle =  "grey"
           this.ctx.strokestyle = "grey"
         }
-        else if (this.cases[count][2] === 3) {
-          this.ctx.fillStyle =  "black"
-          this.ctx.strokestyle = "black"
-        }
         this.ctx.strokeRect((j-(width/size)),i,(width/size),(width/size));
 
         this.ctx.fillRect((j-(width/size)),i,(width/size),(width/size));
@@ -104,11 +100,11 @@ export class AppComponent implements OnInit {
             this.preCases[this.preCases.length - 1][2] = 1;
         } else if (i + 1 < length && this.cases[i + 1][2] === 1  && this.cases[i][1] === size-1 ) {
             this.preCases.push(this.cases[i].slice());
-            this.preCases[this.preCases.length - 1][2] = 3;
+            this.preCases[this.preCases.length - 1][2] = 0;
             console.log(this.cases[i][1])
         } else if (i - 1 >= 0 && this.cases[i - 1][2] === 1 &&  this.cases[i][1] === 0) {
             this.preCases.push(this.cases[i].slice());
-            this.preCases[this.preCases.length - 1][2] = 3;
+            this.preCases[this.preCases.length - 1][2] = 0;
             console.log(this.cases[i][1])
         } else if (i + 1 < length && this.cases[i + 1][2] === 1 && Math.random() * 100 < expansion) {
             this.preCases.push(this.cases[i].slice());
