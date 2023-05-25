@@ -1,9 +1,2 @@
 
-<canvas #canvas  id="mainwindow" [style.width] = "mainWidth" [style.height] = "mainWidth" (click)="next( this.paramservice.starters, this.paramservice.expansion)"></canvas>
-<label for="pet-select">Choose a size:</label>
-<select >
-    <option *ngFor="let option of starters" (click)="this.paramservice.setStarters(option);this.initCases( this.paramservice.starters, this.paramservice.expansion)">{{option}}</option>
-</select>
-<select >
-    <option *ngFor="let option of expansions" (click)="this.paramservice.setExpansion(option);this.initCases( this.paramservice.starters, this.paramservice.expansion)">{{option}}</option>
-</select>
+<canvas #canvas  id="mainwindow" [style.width] = "mainWidth" [style.height] = "mainWidth" (click)="next( )"></canvas>

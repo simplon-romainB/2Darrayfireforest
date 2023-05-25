@@ -1,5 +1,6 @@
 import { Component, ElementRef, ViewChild, OnInit} from '@angular/core';
 import { ParamsService } from './params.service';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -7,19 +8,28 @@ import { ParamsService } from './params.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
+  
   @ViewChild('canvas', { static: true }) canvas: ElementRef<HTMLCanvasElement>;
-  public mainWidth: string = '1010px';
-  public mainHeight: string = '1010px'
+  public mainWidth: string 
+  public mainHeight: string 
   private ctx: CanvasRenderingContext2D | any;
   public preCases: number[][] = []
   public cases: number[][] = []; //tableau formé par le canva afin d'appliquer les regles de la fire forest
   public sizeOptions: number[] =[50, 100, 200]
   public starters: number[] = [1,2,3]
   public expansions: number[] = [25,50,60,70,80,90,100]
+  public size: number;
+  public expansion: number;
+  public starter: number;
+  public width: number
   constructor(public paramservice: ParamsService){
+    this.size = environment.size;
+    this.expansion = environment.expansion;
+    this.starter = environment.starters;
+    this.width = environment.width
   }
   ngOnInit(): void {
-    this.initCases(this.paramservice.starters, this.paramservice.expansion);
+    this.initCases();
     
     
     
@@ -27,7 +37,7 @@ export class AppComponent implements OnInit {
   initGrid() { //initialisation de la grille en suivant le tableau cases
     var width = this.canvas.nativeElement.width
     var count = 0
-    var size = 100
+    var size = this.size
     for (var i = 10; i <= 1000; i+= 10){
       for (var j = 10; j <= 1000; j+= 10) {
         
@@ -52,9 +62,10 @@ export class AppComponent implements OnInit {
     
     
   }
-  initCases(starters : number, expansion: number) {
+  initCases() {
+    var size = this.size
     this.cases = []
-    var size = 100
+    var starters = this.starter
     this.ctx = this.canvas.nativeElement.getContext('2d');
     this.canvas.nativeElement.width = 1100; 
     this.canvas.nativeElement.height = 1100;
@@ -80,9 +91,9 @@ export class AppComponent implements OnInit {
       }
       this.initGrid();
   }
-  preRender( starters: number, expansion: number) {
+  preRender() {
     var length = this.cases.length;
-    
+    var expansion = this.expansion
     var size = 100
     for (var i = 0; i < length; i++) {
       if (this.cases[i][2] === 1) {
@@ -124,8 +135,8 @@ export class AppComponent implements OnInit {
     
     
   }
-  next (starters: number, expansion: number,) {
-    this.preRender( starters, expansion);
+  next () {
+    this.preRender();
     this.initGrid();
    
   }
