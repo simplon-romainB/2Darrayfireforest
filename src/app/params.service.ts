@@ -8,18 +8,7 @@ export class ParamsService {
   public starters: number = 3;
   public size: number = 100;
   constructor() { }
- 
-  setSize(size: number) {
-    this.size = size
-  }
 
-  setStarters(starter: number) {
-    this.starters = starter
-  }
-
-  setExpansion(expansion: number) {
-    this.expansion = expansion
-  }
 
   
 }
